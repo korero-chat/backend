@@ -62,7 +62,10 @@ func (c *DBClient) GetExpectedPasswordHash(username string) string {
 	collection := c.Database("korero").Collection("users")
 	result := collection.FindOne(context.Background(), bson.M{"username": username})
 
-	_, err := result.Decode(&expectedPasswordHash)
+	err := result.Decode(&expectedPasswordHash)
+	if err != nil {
+		log.Fatalf("[-] GetExpectedPasswordHash Decode error: %v", err)
+	}
 
 	return expectedPasswordHash
 
@@ -70,5 +73,5 @@ func (c *DBClient) GetExpectedPasswordHash(username string) string {
 
 // CheckIfUsernameTakes queries given username from the database and check if such entry already exists
 func (c *DBClient) CheckIfUsernameTaken(username string) bool {
-
+	collection := c.Database("korero").Collection("users")
 }
