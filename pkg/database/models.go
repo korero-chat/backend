@@ -12,6 +12,8 @@ type User struct {
 }
 
 type Chat struct {
-	ID    primitive.ObjectID `bson:"_id, omitempty"`
-	users []User             `json:"users"`
+	ID            primitive.ObjectID `bson:"_id, omitempty"`
+	Users         []User             `json:"users"`
+	Description   string             `json:"description"`
+	InvitationURL string             `json:"invitation_id"`
 }

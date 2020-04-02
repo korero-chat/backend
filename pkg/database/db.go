@@ -19,7 +19,8 @@ type DBClient struct {
 func ConnectToDB() *mongo.Client {
 
 	//Database config
-	client, err := mongo.NewClient(options.Client()).ApplyURI("mongo_uri_here")
+	clientoptions := options.Client().ApplyURI("mongo_uri_here")
+	client, err := mongo.Connect(context.TODO(), clientoptions)
 	if err != nil {
 		log.Fatalf("[-] MongoDB NewClient error: %v", err)
 	}
@@ -35,17 +36,18 @@ func ConnectToDB() *mongo.Client {
 		log.Fatalf("[-] Ping error: %v", err)
 	}
 
-	return client
-
 }
 
 // InsertUser inserts new registered user to the database
-func (c *DBClient) InsertUser(username, passwordhash, email string) {
+func InsertUser(username, passwordhash, email string) {
+	c := ConnectToDB()
+
 	newUser := User{
 		Username:       username,
 		PasswordHash:   passwordhash,
 		Email:          email,
 		EmailConfirmed: false,
+		Chats:          nil,
 	}
 
 	collection := c.Database("korero").Collection("users")
@@ -57,11 +59,13 @@ func (c *DBClient) InsertUser(username, passwordhash, email string) {
 }
 
 // GetExpectedPasswordHash queries password from the database based on given username
-func (c *DBClient) GetExpectedPasswordHash(username string) string {
+func GetExpectedPasswordHash(username string) string {
+	c := ConnectToDB()
+
 	var expectedPasswordHash string
 
 	collection := c.Database("korero").Collection("users")
-	result := collection.FindOne(context.Background(), bson.M{"username": username})
+	result := collection.FindOne(context.TODO(), bson.M{"username": username})
 
 	err := result.Decode(&expectedPasswordHash)
 	if err != nil {
@@ -73,6 +77,20 @@ func (c *DBClient) GetExpectedPasswordHash(username string) string {
 }
 
 // CheckIfUsernameTaken queries given username from the database and check if such entry already exists
-func (c *DBClient) CheckIfUsernameTaken(username string) bool {
+func CheckIfEmailTaken(email string) bool {
+	c := ConnectToDB()
+
+	var user User
+
 	collection := c.Database("korero").Collection("users")
+	err := collection.FindOne(context.TODO(), bson.M{"username": email}).Decode(&user)
+	if err != nil {
+		log.Fatalf("[-] CheckIfEmailTaken error: %v", err)
+	}
+
+	if email == user.Email {
+		return false
+	}
+
+	return true
 }
