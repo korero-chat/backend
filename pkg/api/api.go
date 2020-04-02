@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/korero-chat/backend/pkg/crypto"
-	"github.com/korero-chat/backend/pkg/database"
+	database "github.com/korero-chat/backend/pkg/database"
 )
 
 func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
@@ -35,8 +35,16 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Insert user into the database
-	database.InsertUser(user.Username, passwordhash, user.Email)
+	database.InsertUser(user.Username, passwordhash, user.Email, false)
 
 	json.NewEncoder(w).Encode(user)
+
+}
+
+func GetChatsByUserIDEndpoint(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func GetChatUsersEndpoint(w http.ResponseWriter, r *http.Request) {
 
 }
