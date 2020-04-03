@@ -3,8 +3,10 @@ package database
 import (
 	"context"
 	"log"
+	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -18,8 +20,14 @@ type DBClient struct {
 // ConnectToDB connects server with MongoDB, returns database client
 func ConnectToDB() *mongo.Client {
 
+	//load .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("[-] error loading .env file: %v", err)
+	}
+
 	//Database config
-	clientoptions := options.Client().ApplyURI("mongo_uri_here")
+	clientoptions := options.Client().ApplyURI(os.Getenv("MONGO_URI"))
 	client, err := mongo.Connect(context.TODO(), clientoptions)
 	if err != nil {
 		log.Fatalf("[-] MongoDB NewClient error: %v", err)
@@ -36,6 +44,7 @@ func ConnectToDB() *mongo.Client {
 		log.Fatalf("[-] Ping error: %v", err)
 	}
 
+	return client
 }
 
 // InsertUser inserts new registered user to the database

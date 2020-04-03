@@ -19,8 +19,8 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	var user database.User
 	_ = json.NewDecoder(r.Body).Decode((&user))
 
-	//Check if username already taken
-	result := database.CheckIfUsernameTaken(user.Username)
+	//Check if email already taken
+	result := database.CheckIfEmailTaken(user.Email)
 	if result == false {
 		w.WriteHeader(http.StatusConflict)
 		return
@@ -35,13 +35,15 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Insert user into the database
-	database.InsertUser(user.Username, passwordhash, user.Email, false)
+	database.InsertUser(user.Username, passwordhash, user.Email)
 
 	json.NewEncoder(w).Encode(user)
 
 }
 
 func GetChatsByUserIDEndpoint(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 }
 
