@@ -2,6 +2,7 @@ package auth
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -37,9 +38,9 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get expected password from Database
-	expectedPassword := database.GetExpectedPassword(creds.Username)
+	expectedPasswordHash := database.GetExpectedPasswordHash(creds.Username)
 
-	if expectedPassword != creds.Password {
+	if expectedPasswordHash != creds.Password {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -70,6 +71,41 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func Refresh(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func Welcome(w http.ResponseWriter, r *http.Request) {
+	c, err := r.Cookie("token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	token := c.Value
+	claims := &Claims{}
+
+	tkn, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return jwtKey, nil
+	})
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !tkn.Valid {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	w.Write([]byte(fmt.Sprintf("Welcome %s!", claims.Username)))
 
 }
