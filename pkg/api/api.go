@@ -48,5 +48,9 @@ func GetChatsByUserIDEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetChatUsersEndpoint(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	var chats []database.Chat
 
 }
