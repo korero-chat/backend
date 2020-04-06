@@ -2,14 +2,15 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 type DBClient struct {
@@ -18,25 +19,21 @@ type DBClient struct {
 
 // ConnectToDB connects server with MongoDB, returns database client
 func ConnectToDB() *mongo.Client {
-
-	//load .env file
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("[-] error loading .env file: %v", err)
+		log.Fatal("Error loading .env file")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("MONGO_URI"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("MONGO_URI")))
 
 	if err != nil {
 		log.Fatalf("[-] Mongo.Connect error: %v", err)
 	}
-	err = client.Ping(ctx, readpref.Primary())
-	if err != nil {
-		log.Fatalf("[-] Ping error: %v", err)
-	}
+
+	fmt.Println("[+] Connected to the database")
 
 	return client
 }
@@ -88,7 +85,7 @@ func CheckIfEmailTaken(email string) bool {
 	collection := c.Database("korero").Collection("users")
 	err := collection.FindOne(context.TODO(), bson.M{"username": email}).Decode(&user)
 	if err != nil {
-		log.Fatalf("[-] CheckIfEmailTaken error: %v", err)
+		return true
 	}
 
 	if email == user.Email {
