@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"log"
-	"os"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -26,19 +25,14 @@ func ConnectToDB() *mongo.Client {
 		log.Fatalf("[-] error loading .env file: %v", err)
 	}
 
-	//Database config
-	clientoptions := options.Client().ApplyURI(os.Getenv("MONGO_URI"))
-	client, err := mongo.Connect(context.TODO(), clientoptions)
-	if err != nil {
-		log.Fatalf("[-] MongoDB NewClient error: %v", err)
-	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatalf("[-] MongoDB client.Connect error: %v", err)
-	}
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("MONGO_URI"))
 
+	if err != nil {
+		log.Fatalf("[-] Mongo.Connect error: %v", err)
+	}
 	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
 		log.Fatalf("[-] Ping error: %v", err)
