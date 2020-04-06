@@ -7,7 +7,6 @@ import (
 
 	"github.com/korero-chat/backend/pkg/crypto"
 	database "github.com/korero-chat/backend/pkg/database"
-	"golang.org/x/net/webdav"
 )
 
 func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +21,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	// Validate username and password / check if blank
 	if user.Username == "" || user.PasswordHash == "" {
-		w.WriteHeader(webdav.StatusUnprocessableEntity)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
