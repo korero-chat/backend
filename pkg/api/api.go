@@ -47,7 +47,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GetUsersChatsEndpoint(w http.ResponseWriter, r *http.Request) []database.Chat {
+func GetUsersChatsEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
@@ -55,5 +55,5 @@ func GetUsersChatsEndpoint(w http.ResponseWriter, r *http.Request) []database.Ch
 	json.NewDecoder(r.Body).Decode((&username))
 
 	result := database.GetChatsByUser(username)
-	return result
+	json.NewEncoder(w).Encode(result)
 }
