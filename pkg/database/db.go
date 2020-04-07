@@ -112,3 +112,34 @@ func GetChatsByUser(username string) []Chat {
 
 	return chats
 }
+
+func GetUsersOfChat(id string) []User {
+	c := ConnectToDB()
+
+	var users []User
+
+	collection := c.Database("korero").Collection("chats")
+	err := collection.Find(nil).Select(bson.M{"members": 1}).All(&users)
+	if err != nil {
+		log.Fatalf("[-] select member error: %v", err)
+	}
+
+	return users
+}
+
+func InsertChat(chat Chat) {
+	c := ConnectToDB()
+
+	newChat := Chat{
+		ChatName:        chat.ChatName,
+		ChatCreatorID:   chat.ChatCreatorID,
+		Members:         nil,
+		RoomMembersSize: 1,
+	}
+
+	collection := c.Database("korero").Collection("chats")
+	_, err := collection.InsertOne(context.TODO(), newChat)
+	if err != nil {
+		log.Fatalf("[-] InsertOne Chat error: %v", err)
+	}
+}

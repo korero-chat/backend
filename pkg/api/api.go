@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/korero-chat/backend/pkg/crypto"
 	database "github.com/korero-chat/backend/pkg/database"
 )
@@ -52,8 +53,29 @@ func GetUsersChatsEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var username string
-	json.NewDecoder(r.Body).Decode((&username))
+	json.NewDecoder(r.Body).Decode(&username)
 
 	result := database.GetChatsByUser(username)
 	json.NewEncoder(w).Encode(result)
+}
+
+func GetUsersOfChatEndpoint(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	var users []database.User
+	params := mux.Vars(r)
+
+	users = database.GetUsersOfChat(params["id"])
+	json.NewEncoder(w).Encode(users)
+}
+
+func CreateNewChatRoomEndpoint(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	var chat database.Chat
+	_ = json.NewDecoder(r.Body).Decode((&chat))
+	database.InsertChat(chat)
+
 }
