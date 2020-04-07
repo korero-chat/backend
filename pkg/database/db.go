@@ -119,7 +119,7 @@ func GetUsersOfChat(id string) []User {
 	var users []User
 
 	collection := c.Database("korero").Collection("chats")
-	err := collection.Find(nil).Select(bson.M{"members": 1}).All(&users)
+	err := collection.Find(context.TODO(), bson.M{"_id": id}).Select(bson.M{"members": 1}).All(&users)
 	if err != nil {
 		log.Fatalf("[-] select member error: %v", err)
 	}
