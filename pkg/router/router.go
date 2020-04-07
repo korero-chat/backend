@@ -10,9 +10,8 @@ import (
 func SetRouter() *mux.Router {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/api/newuser", api.RegisterUserEndpoint).Methods("POST")
-	router.HandleFunc("/api/user/chat/{id}", api.GetChatsByUserIDEndpoint).Methods("GET")
-	router.HandleFunc("/api/chat/{id}/users", api.GetChatUsersEndpoint).Methods("GET")
+	router.HandleFunc("/api/register", api.RegisterUserEndpoint).Methods("POST")
+	router.HandleFunc("/api/chats", api.GetUsersChatsEndpoint).Methods("GET")
 
 	// auth
 	router.HandleFunc("/signin", auth.SignIn)

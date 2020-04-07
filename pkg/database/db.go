@@ -94,3 +94,21 @@ func CheckIfEmailTaken(email string) bool {
 
 	return true
 }
+
+func GetChatsByUser(username string) []Chat {
+	c := ConnectToDB()
+
+	var chats []Chat
+
+	collection := c.Database("korero").Collection("chats")
+	cursor, err := collection.Find(context.TODO(), bson.M{"username": username})
+	if err != nil {
+		log.Fatalf("[-] Collection.Find error: %v", err)
+	}
+
+	if err = cursor.All(context.TODO(), &chats); err != nil {
+		log.Fatalf("[-] cursor.All error: %v", err)
+	}
+
+	return chats
+}
