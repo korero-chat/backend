@@ -12,9 +12,9 @@ type User struct {
 }
 
 type Chat struct {
-	ID            primitive.ObjectID `bson:"_id, omitempty", json:"chat_id"`
-	ChatName      string             `json:"chat_name"`
-	ChatCreatorID string             `json:"chat_creator_id"`
-	Members       []User             `json:"chat_members"`
-	RoomSize      int                `json:"room_members_size`
+	ID              primitive.ObjectID `bson:"_id, omitempty", json:"id"`
+	ChatName        string             `json:"chat_name"`
+	ChatCreatorID   string             `json:"chat_creator_id"`
+	Members         []User             `json:"chat_members"`
+	RoomMembersSize int                `json:"room_members_size"`
 }
