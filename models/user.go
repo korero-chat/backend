@@ -6,3 +6,8 @@ type User struct {
 	Password string `json:"password"`
 	Email    string `json:"email"`
 }
+
+type NewUserRequest struct {
+	Username string `validate:"min=3,max=40,regexp=^[a-zA-Z]*$"`
+	Password string `validate:"min=8"`
+}

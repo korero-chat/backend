@@ -2,7 +2,7 @@
 
 
 ## API
-Register User Endpoint
 ```bash
-    /register
+    POST /register
+    POST /login
 ```
