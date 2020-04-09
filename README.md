@@ -1,4 +1,4 @@
-# Korero-chat backed
+# Korero-chat backend
 
 
 ## API
