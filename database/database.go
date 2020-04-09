@@ -54,7 +54,7 @@ func FindUserByUsername(username string) (models.User, error) {
 
 func InsertUser(user models.User) error {
 	c := ConnectToDB()
-	collection := c.Database("korero").Collection("users")
+	collection := c.Database(dbname).Collection("users")
 	_, err := collection.InsertOne(context.TODO(), user)
 
 	return err
