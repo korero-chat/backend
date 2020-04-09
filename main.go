@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/korero-chat/backend/pkg/router"
+	"github.com/korero-chat/backend/routes"
 )
 
 func main() {
-	router := router.SetRouter()
+	router := routes.SetRoutes()
 	log.Fatal(http.ListenAndServe(":8888", router))
 }

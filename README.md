@@ -1,1 +1,7 @@
-Repo for korero app backend
+# Korero-chat backed
+
+
+## API
+```bash
+
+```
