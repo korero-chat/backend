@@ -17,7 +17,7 @@ import (
 func ConnectToDB() *mongo.Client {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal{"Error loading .env file"}
+		log.Fatal("Error loading .env file")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -34,13 +34,18 @@ func ConnectToDB() *mongo.Client {
 	return client
 }
 
-func FindUserByUsername(username string) error {
+func FindUserByUsername(username string) (models.User, error) {
 	c := ConnectToDB()
 
-	collection := c.Database("korero").Collection("users")
-	err := collection.FindOne(context.TODO(), bson.D{{"username", username}})
+	var user models.User
 
-	return err
+	collection := c.Database("korero").Collection("users")
+	err := collection.FindOne(context.TODO(), bson.D{{"username", username}}).Decode(&user)
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
 }
 
 func InsertUser(user models.User) error {

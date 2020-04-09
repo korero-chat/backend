@@ -14,7 +14,6 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var user models.User
-	var result models.User
 	var response models.ResponseModel
 
 	reqBody, _ := ioutil.ReadAll(r.Body)
@@ -37,7 +36,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 	}
 
-	err := database.FindUserByUsername(user.Username)
+	_, err = database.FindUserByUsername(user.Username)
 	if err != nil {
 		// If username is not found, hash password
 		if err.Error() == "mongo: no documents in result" {
@@ -52,7 +51,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 			user.Password = string(passwordhash)
 
 			//Insert new user into DB
-			err := database.InsertUser(user)
+			err = database.InsertUser(user)
 			if err != nil {
 				response.Error = err.Error()
 				json.NewEncoder(w).Encode(response)
@@ -65,7 +64,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		response.Error = err.Error()
-		json.NewEncoder(w).Encode(res)
+		json.NewEncoder(w).Encode(response)
 
 	}
 
