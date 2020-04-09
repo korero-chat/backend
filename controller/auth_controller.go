@@ -31,6 +31,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 		response.Error = errs.Error()
 		response.Result = "Validation error"
 		json.NewEncoder(w).Encode(response)
+		return
 	}
 
 	_, err = database.FindUserByUsername(user.Username)
@@ -65,7 +66,6 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	response.Result = "Username already Exists!"
 	json.NewEncoder(w).Encode(response)
 	return
 }
