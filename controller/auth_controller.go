@@ -4,13 +4,11 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"os"
 
-	"gopkg.in/validator.v2"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/korero-chat/backend/database"
 	"github.com/korero-chat/backend/models"
 	"golang.org/x/crypto/bcrypt"
+	"gopkg.in/validator.v2"
 )
 
 func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +32,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 		response.Result = "Validation error"
 		json.NewEncoder(w).Encode(response)
 	}
-	
+
 	_, err = database.FindUserByUsername(user.Username)
 	if err != nil {
 		// If username is not found, hash password
@@ -72,12 +70,12 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
+/*func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var user models.User
 	var response models.ResponseModel
-	
+
 	body, _ := ioutil.ReadAll(r.Body)
 	err := json.Unmarshal(body, &user)
 	if err != nil{
@@ -121,3 +119,4 @@ func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 func LogoutEndpoint(w http.ResponseWriter, r *http.Request) {
 
 }
+*/
