@@ -14,11 +14,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var dbname string
+
 func ConnectToDB() *mongo.Client {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	dbname = os.Getenv("DBNAME")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -39,7 +43,7 @@ func FindUserByUsername(username string) (models.User, error) {
 
 	var user models.User
 
-	collection := c.Database("korero").Collection("users")
+	collection := c.Database(dbname).Collection("users")
 	err := collection.FindOne(context.TODO(), bson.D{{"username", username}}).Decode(&user)
 	if err != nil {
 		return user, err
