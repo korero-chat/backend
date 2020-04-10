@@ -26,7 +26,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//validate data
-	nur := models.NewUserRequest{Username: user.Username, Password: user.Password}
+	nur := models.NewUserRequest{Username: user.Username, Password: user.Password, Email: user.Email}
 	if errs := validator.Validate(nur); errs != nil {
 		response.Error = errs.Error()
 		response.Result = "Validation error"
