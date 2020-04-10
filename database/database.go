@@ -14,7 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var mongoURI, dbname string
+var mongoURI, dbName string
 
 func ConnectToDB() *mongo.Client {
 	err := godotenv.Load()
@@ -22,9 +22,9 @@ func ConnectToDB() *mongo.Client {
 		log.Fatal("Error loading .env file")
 	}
 
-	dbname = os.Getenv("DBNAME")
+	dbName = os.Getenv("DBNAME")
 	mongoURI = os.Getenv("MONGO_URI")
-	
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -44,7 +44,7 @@ func FindUserByUsername(username string) (models.User, error) {
 
 	var user models.User
 
-	collection := c.Database(dbname).Collection("users")
+	collection := c.Database(dbName).Collection("users")
 	err := collection.FindOne(context.TODO(), bson.D{{"username", username}}).Decode(&user)
 	if err != nil {
 		return user, err
@@ -55,7 +55,7 @@ func FindUserByUsername(username string) (models.User, error) {
 
 func InsertUser(user models.User) error {
 	c := ConnectToDB()
-	collection := c.Database(dbname).Collection("users")
+	collection := c.Database(dbName).Collection("users")
 	_, err := collection.InsertOne(context.TODO(), user)
 
 	return err
