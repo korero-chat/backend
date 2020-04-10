@@ -16,7 +16,7 @@ import (
 
 var mongoURI, dbName string
 
-func InitDB() {
+func init() {
 	err := godotenv.Load()
 	if err == nil {
 		// .env exists
