@@ -3,12 +3,8 @@ package controller
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"os"
 
-	"github.com/dgrijalva/jwt-go"
-	"github.com/joho/godotenv"
 	"github.com/korero-chat/backend/database"
 	"github.com/korero-chat/backend/models"
 	"golang.org/x/crypto/bcrypt"
@@ -24,6 +20,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	err := json.Unmarshal(reqBody, &user)
 	if err != nil {
+		w.WriteHeader(500)
 		response.Error = err.Error()
 		json.NewEncoder(w).Encode(response)
 		return
@@ -32,6 +29,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	//validate data
 	nur := models.NewUserRequest{Username: user.Username, Password: user.Password, Email: user.Email}
 	if errs := validator.Validate(nur); errs != nil {
+		w.WriteHeader(422)
 		response.Error = errs.Error()
 		response.Result = "Validation error"
 		json.NewEncoder(w).Encode(response)
@@ -45,6 +43,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 			passwordhash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 5)
 
 			if err != nil {
+				w.WriteHeader(500)
 				response.Error = "Error while hashing the password"
 				json.NewEncoder(w).Encode(response)
 			}
@@ -55,25 +54,30 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 			//Insert new user into DB
 			err = database.InsertUser(user)
 			if err != nil {
+				w.WriteHeader(500)
 				response.Error = err.Error()
 				json.NewEncoder(w).Encode(response)
 				return
 			}
 
 			//Registration successfull
+			w.WriteHeader(200)
 			response.Result = "Registration Successfull"
 			json.NewEncoder(w).Encode(response)
 			return
 		}
+
 		response.Error = err.Error()
 		json.NewEncoder(w).Encode(response)
 
 	}
-
+	//username already taken
+	w.WriteHeader(409)
 	json.NewEncoder(w).Encode(response)
 	return
 }
 
+/*
 func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -115,11 +119,17 @@ func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_JWT_KEY")))
+	if err != nil {
+		response.Error = "Error while generating token, try again"
+		json.NewEncoder(w).Encode(response)
+	}
+
+	user.Token = tokenString
 
 }
 
-/*
 func LogoutEndpoint(w http.ResponseWriter, r *http.Request) {
 
 }
