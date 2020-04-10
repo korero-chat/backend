@@ -16,15 +16,22 @@ import (
 
 var mongoURI, dbName string
 
-func ConnectToDB() *mongo.Client {
+func init() {
 	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if err == nil {
+		// .env exists
+		log.Println(".env file has been loaded successfully.")
+		mongoURI = os.Getenv("MONGO_URI")
+		dbName = os.Getenv("DBNAME")
+	} else {
+		// .env does not exist
+		log.Println("Note: Cannot load .env file. Using test credentials.")
+		mongoURI = "mongodb://localhost/"
+		dbName = "test"
 	}
+}
 
-	dbName = os.Getenv("DBNAME")
-	mongoURI = os.Getenv("MONGO_URI")
-
+func ConnectToDB() *mongo.Client {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
