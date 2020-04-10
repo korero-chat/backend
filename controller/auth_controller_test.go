@@ -97,3 +97,41 @@ func TestRegisterUserEndpointWithInvalidData(t *testing.T) {
 		"'errors' value should be truthy",
 	)
 }
+
+func TestRegisterUserEndpointTwiceWithSameData(t *testing.T) {
+	payload, err := json.Marshal(models.User{
+		Username: "piesia",
+		Password: "hauhauhau",
+		Email: "hau@email.com",
+	})
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("POST", "/register", bytes.NewBuffer(payload))
+	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		t.Error(err)
+	}
+
+	rec := httptest.NewRecorder()
+
+	// performing the same request twice
+	RegisterUserEndpoint(httptest.NewRecorder(), req)
+	RegisterUserEndpoint(rec, req)
+
+	assert.Equal(
+		t,
+		http.StatusConflict,
+		rec.Result().StatusCode,
+		"should return 409 Conflict upon submitting valid data more than once",
+	)
+
+	var jsonData models.ResponseModel
+	json.Unmarshal(rec.Body.Bytes(), &jsonData) 
+	assert.NotEmpty(
+		t,
+		jsonData.Error,
+		"'errors' value should be truthy",
+	)
+}
