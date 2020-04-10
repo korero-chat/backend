@@ -36,7 +36,7 @@ func TestRegisterUserEndpointWithValidData(t *testing.T) {
 		t.Error(err)
 	}
 
-	req, err := http.NewRequest("GET", "/register", bytes.NewBuffer(payload))
+	req, err := http.NewRequest("POST", "/register", bytes.NewBuffer(payload))
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		t.Error(err)
