@@ -14,20 +14,28 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var dbname string
+var mongoURI, dbName string
+
+func init() {
+	err := godotenv.Load()
+	if err == nil {
+		// .env exists
+		log.Println(".env file has been loaded successfully.")
+		mongoURI = os.Getenv("MONGO_URI")
+		dbName = os.Getenv("DBNAME")
+	} else {
+		// .env does not exist
+		log.Println("Note: Cannot load .env file. Using test credentials.")
+		mongoURI = "mongodb://localhost/"
+		dbName = "test"
+	}
+}
 
 func ConnectToDB() *mongo.Client {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	dbname = os.Getenv("DBNAME")
-
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("MONGO_URI")))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
 
 	if err != nil {
 		log.Fatalf("[-] Mongo.Connect error: %v", err)
@@ -43,7 +51,7 @@ func FindUserByUsername(username string) (models.User, error) {
 
 	var user models.User
 
-	collection := c.Database(dbname).Collection("users")
+	collection := c.Database(dbName).Collection("users")
 	err := collection.FindOne(context.TODO(), bson.D{{"username", username}}).Decode(&user)
 	if err != nil {
 		return user, err
@@ -54,7 +62,7 @@ func FindUserByUsername(username string) (models.User, error) {
 
 func InsertUser(user models.User) error {
 	c := ConnectToDB()
-	collection := c.Database(dbname).Collection("users")
+	collection := c.Database(dbName).Collection("users")
 	_, err := collection.InsertOne(context.TODO(), user)
 
 	return err
