@@ -14,7 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var dbname string
+var mongoURI, dbname string
 
 func ConnectToDB() *mongo.Client {
 	err := godotenv.Load()
@@ -23,11 +23,12 @@ func ConnectToDB() *mongo.Client {
 	}
 
 	dbname = os.Getenv("DBNAME")
-
+	mongoURI = os.Getenv("MONGO_URI")
+	
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("MONGO_URI")))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
 
 	if err != nil {
 		log.Fatalf("[-] Mongo.Connect error: %v", err)
