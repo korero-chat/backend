@@ -61,7 +61,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 			}
 
 			//Registration successfull
-			w.WriteHeader(200)
+			w.WriteHeader(201)
 			response.Result = "Registration Successfull"
 			json.NewEncoder(w).Encode(response)
 			return
