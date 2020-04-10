@@ -9,5 +9,5 @@ type User struct {
 type NewUserRequest struct {
 	Username string `validate:"min=3,max=40,regexp=^[a-zA-Z]*$"`
 	Password string `validate:"min=8"`
-	Email    string `validate:regexp="^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$"`
+	Email    string `validate:"regexp=^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$"`
 }

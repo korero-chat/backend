@@ -3,8 +3,12 @@ package controller
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 
+	"github.com/dgrijalva/jwt-go"
+	"github.com/joho/godotenv"
 	"github.com/korero-chat/backend/database"
 	"github.com/korero-chat/backend/models"
 	"golang.org/x/crypto/bcrypt"
@@ -70,7 +74,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-/*func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
+func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var user models.User
@@ -78,15 +82,15 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	body, _ := ioutil.ReadAll(r.Body)
 	err := json.Unmarshal(body, &user)
-	if err != nil{
+	if err != nil {
 		response.Error = err.Error()
 		json.NewEncoder(w).Encode(response)
 		return
 	}
 
 	//Check if user with given username exists
-	result, err = database.FindUserByUsername(user.Username)
-	if err != nil{
+	result, err := database.FindUserByUsername(user.Username)
+	if err != nil {
 		response.Error = "Invalid username"
 		json.NewEncoder(w).Encode(response)
 		return
@@ -103,19 +107,19 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	//Generate token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": result.Username,
-		"password": result.Password
+		"password": result.Password,
 	})
 
 	//load secret token key from .env file
-	err := godotenv.Load()
+	err = godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_JWT_KEY")))
 
+}
 
-
+/*
 func LogoutEndpoint(w http.ResponseWriter, r *http.Request) {
 
 }
