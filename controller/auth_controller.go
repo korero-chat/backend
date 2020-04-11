@@ -182,7 +182,7 @@ func VerifyToken(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), tk)
+		ctx := context.WithValue(r.Context(), "username", tk)
 		next.ServeHTTP(w, r.WithContext(ctx))
 
 	})
