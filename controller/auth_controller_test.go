@@ -108,8 +108,14 @@ func TestRegisterUserEndpointTwiceWithSameData(t *testing.T) {
 		t.Error(err)
 	}
 
-	req, err := http.NewRequest("POST", "/register", bytes.NewBuffer(payload))
-	req.Header.Set("Content-Type", "application/json")
+	reqFirst, err := http.NewRequest("POST", "/register", bytes.NewBuffer(payload))
+	reqFirst.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		t.Error(err)
+	}
+
+	reqSecond, err := http.NewRequest("POST", "/register", bytes.NewBuffer(payload))
+	reqSecond.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		t.Error(err)
 	}
@@ -117,8 +123,8 @@ func TestRegisterUserEndpointTwiceWithSameData(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	// performing the same request twice
-	RegisterUserEndpoint(httptest.NewRecorder(), req)
-	RegisterUserEndpoint(rec, req)
+	RegisterUserEndpoint(httptest.NewRecorder(), reqFirst)
+	RegisterUserEndpoint(rec, reqSecond)
 
 	assert.Equal(
 		t,
@@ -128,7 +134,7 @@ func TestRegisterUserEndpointTwiceWithSameData(t *testing.T) {
 	)
 
 	var jsonData models.ResponseModel
-	json.Unmarshal(rec.Body.Bytes(), &jsonData) 
+	json.Unmarshal(rec.Body.Bytes(), &jsonData)
 	assert.NotEmpty(
 		t,
 		jsonData.Error,
