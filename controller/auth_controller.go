@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
+	"github.com/joho/godotenv"
 	"github.com/korero-chat/backend/database"
 	"github.com/korero-chat/backend/models"
 	"golang.org/x/crypto/bcrypt"
@@ -77,7 +80,6 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-/*
 func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -87,6 +89,7 @@ func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 	body, _ := ioutil.ReadAll(r.Body)
 	err := json.Unmarshal(body, &user)
 	if err != nil {
+		w.WriteHeader(500)
 		response.Error = err.Error()
 		json.NewEncoder(w).Encode(response)
 		return
@@ -95,6 +98,7 @@ func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 	//Check if user with given username exists
 	result, err := database.FindUserByUsername(user.Username)
 	if err != nil {
+		w.WriteHeader(422)
 		response.Error = "Invalid username"
 		json.NewEncoder(w).Encode(response)
 		return
@@ -103,30 +107,47 @@ func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 	// Compare given password and hashed
 	err = bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(user.Password))
 	if err != nil {
+		w.WriteHeader(401)
 		response.Error = "Invalid Password"
 		json.NewEncoder(w).Encode(response)
 		return
 	}
 
-	//Generate token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": result.Username,
-		"password": result.Password,
-	})
+	tk := models.Token{
+		Username: user.Username,
+		StandardClaims: &jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+		},
+	}
 
-	//load secret token key from .env file
+	//load secret key from .env file
 	err = godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_JWT_KEY")))
-	if err != nil {
-		response.Error = "Error while generating token, try again"
+		w.WriteHeader(500)
+		response.Error = "Could not load secret key"
 		json.NewEncoder(w).Encode(response)
+		return
 	}
 
-	user.Token = tokenString
+	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
+	tokenString, err := token.SignedString([]byte("SECRET_JWT_KEY"))
+	if err != nil {
+		w.WriteHeader(500)
+		response.Error = "Could not create token"
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	var resp = map[string]interface{}{"status": false, "message": "logged_in"}
+	resp["user"] = user.Username
+	resp["token"] = tokenString
+
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(resp)
+}
+
+/*
+func VerifyToken(next http.Handler) http.Handler {
 
 }
 

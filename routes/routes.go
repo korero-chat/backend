@@ -11,7 +11,7 @@ func SetRoutes() *mux.Router {
 
 	//Auth routes
 	router.HandleFunc("/register", controller.RegisterUserEndpoint).Methods("POST")
-	//router.HandleFunc("/login", controller.LoginEndpoint).Methods("POST")
+	router.HandleFunc("/login", controller.LoginEndpoint).Methods("POST")
 	//router.HandleFunc("/logout", controller.LogoutEndpoint)
 
 	return router
