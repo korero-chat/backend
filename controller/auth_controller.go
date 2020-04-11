@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -146,11 +148,47 @@ func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-/*
 func VerifyToken(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
+		response := models.ResponseModel{}
+		token := r.Header.Get("x-access-token")
+		token = strings.TrimSpace(token)
+
+		if token == "" {
+			w.WriteHeader(403)
+			response.Error = "Missing auth token"
+			json.NewEncoder(w).Encode(response)
+		}
+
+		tk := &models.Token{}
+
+		err := godotenv.Load()
+		if err != nil {
+			w.WriteHeader(500)
+			response.Error = "Could not load secret key"
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
+		_, err = jwt.ParseWithClaims(token, tk, func(token *jwt.Token) (interface{}, error) {
+			return []byte("SECRET_JWT_KEY"), nil
+		})
+
+		if err != nil {
+			w.WriteHeader(403)
+			response.Error = err.Error()
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), tk)
+		next.ServeHTTP(w, r.WithContext(ctx))
+
+	})
 }
 
+/*
 func LogoutEndpoint(w http.ResponseWriter, r *http.Request) {
 
 }
