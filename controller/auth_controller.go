@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/goware/emailx"
 	"github.com/joho/godotenv"
 	"github.com/korero-chat/backend/database"
 	"github.com/korero-chat/backend/models"
@@ -31,12 +32,35 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//validate data
-	nur := models.NewUserRequest{Username: user.Username, Password: user.Password, Email: user.Email}
+	//validate username and password
+	nur := models.NewUserRequest{Username: user.Username, Password: user.Password}
 	if errs := validator.Validate(nur); errs != nil {
 		w.WriteHeader(422)
 		response.Error = errs.Error()
 		response.Result = "Validation error"
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	//validate email
+	err = emailx.Validate(user.Email)
+	if err != nil {
+		if err == emailx.ErrInvalidFormat {
+			w.WriteHeader(422)
+			response.Error = "Invalid email format"
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
+		if err == emailx.ErrUnresolvableHost {
+			w.WriteHeader(422)
+			response.Error = "Unresovlable email host"
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
+		w.WriteHeader(422)
+		response.Error = "Email validation error"
 		json.NewEncoder(w).Encode(response)
 		return
 	}
@@ -189,8 +213,6 @@ func VerifyToken(next http.Handler) http.Handler {
 	})
 }
 
-/*
 func LogoutEndpoint(w http.ResponseWriter, r *http.Request) {
 
 }
-*/
