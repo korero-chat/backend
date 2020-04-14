@@ -10,8 +10,8 @@ func SetRoutes() *mux.Router {
 	router := mux.NewRouter()
 
 	//Auth routes
-	router.HandleFunc("/register", controller.RegisterUserEndpoint).Methods("POST")
-	router.HandleFunc("/login", controller.LoginEndpoint).Methods("POST")
+	router.HandleFunc("/backend/register", controller.RegisterUserEndpoint).Methods("POST")
+	router.HandleFunc("/backend/login", controller.LoginEndpoint).Methods("POST")
 
 	// subroutes
 	s := router.PathPrefix("/api").Subrouter()

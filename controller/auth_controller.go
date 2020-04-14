@@ -17,8 +17,13 @@ import (
 	"gopkg.in/validator.v2"
 )
 
+func init() {
+	err := godotenv.Load()
+}
+
 func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	(w).Header().Set("Access-Control-Allow-Origin", "*")
 
 	var user models.User
 	var response models.ResponseModel
@@ -109,6 +114,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 
 func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	(w).Header().Set("Access-Control-Allow-Origin", "*")
 
 	var user models.User
 	var response models.ResponseModel
@@ -175,6 +181,7 @@ func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 
 func VerifyToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		(w).Header().Set("Access-Control-Allow-Origin", "*")
 
 		response := models.ResponseModel{}
 		token := r.Header.Get("x-access-token")
@@ -199,7 +206,6 @@ func VerifyToken(next http.Handler) http.Handler {
 		_, err = jwt.ParseWithClaims(token, tk, func(token *jwt.Token) (interface{}, error) {
 			return []byte("SECRET_JWT_KEY"), nil
 		})
-
 		if err != nil {
 			w.WriteHeader(403)
 			response.Error = err.Error()
@@ -211,8 +217,4 @@ func VerifyToken(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r.WithContext(ctx))
 
 	})
-}
-
-func LogoutEndpoint(w http.ResponseWriter, r *http.Request) {
-
 }
