@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -19,6 +20,9 @@ import (
 
 func init() {
 	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }
 
 func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
