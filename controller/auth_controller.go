@@ -27,7 +27,7 @@ func init() {
 
 func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	(w).Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var user models.User
 	var response models.ResponseModel
@@ -118,7 +118,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 
 func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	(w).Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var user models.User
 	var response models.ResponseModel
@@ -157,15 +157,6 @@ func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	//load secret key from .env file
-	err = godotenv.Load()
-	if err != nil {
-		w.WriteHeader(500)
-		response.Error = "Could not load secret key"
-		json.NewEncoder(w).Encode(response)
-		return
-	}
-
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 	tokenString, err := token.SignedString([]byte("SECRET_JWT_KEY"))
 	if err != nil {
@@ -185,7 +176,7 @@ func LoginEndpoint(w http.ResponseWriter, r *http.Request) {
 
 func VerifyToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		(w).Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		response := models.ResponseModel{}
 		token := r.Header.Get("x-access-token")
@@ -199,15 +190,7 @@ func VerifyToken(next http.Handler) http.Handler {
 
 		tk := &models.Token{}
 
-		err := godotenv.Load()
-		if err != nil {
-			w.WriteHeader(500)
-			response.Error = "Could not load secret key"
-			json.NewEncoder(w).Encode(response)
-			return
-		}
-
-		_, err = jwt.ParseWithClaims(token, tk, func(token *jwt.Token) (interface{}, error) {
+		_, err := jwt.ParseWithClaims(token, tk, func(token *jwt.Token) (interface{}, error) {
 			return []byte("SECRET_JWT_KEY"), nil
 		})
 		if err != nil {
