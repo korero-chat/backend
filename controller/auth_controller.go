@@ -54,8 +54,7 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	//check if passwords match
 	if newUser.Password != newUser.Password2 {
 		w.WriteHeader(422)
-		response.Error = err.Error()
-		response.Result = "Passwords do not match"
+		response.Error = "Passwords do not match"
 		json.NewEncoder(w).Encode(response)
 		return
 	}
