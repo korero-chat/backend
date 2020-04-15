@@ -29,11 +29,11 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	var user models.User
+	var newUser models.NewUserRequest
 	var response models.ResponseModel
 
 	reqBody, _ := ioutil.ReadAll(r.Body)
-	err := json.Unmarshal(reqBody, &user)
+	err := json.Unmarshal(reqBody, &newUser)
 	if err != nil {
 		w.WriteHeader(500)
 		response.Error = err.Error()
@@ -42,8 +42,8 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//validate username and password
-	nur := models.NewUserRequest{Username: user.Username, Password: user.Password}
-	if errs := validator.Validate(nur); errs != nil {
+
+	if errs := validator.Validate(newUser); errs != nil {
 		w.WriteHeader(422)
 		response.Error = errs.Error()
 		response.Result = "Validation error"
@@ -51,8 +51,17 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//check if passwords match
+	if newUser.Password != newUser.Password2 {
+		w.WriteHeader(422)
+		response.Error = err.Error()
+		response.Result = "Passwords do not match"
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
 	//validate email
-	err = emailx.Validate(user.Email)
+	err = emailx.Validate(newUser.Email)
 	if err != nil {
 		if err == emailx.ErrInvalidFormat {
 			w.WriteHeader(422)
@@ -74,10 +83,12 @@ func RegisterUserEndpoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = database.FindUserByUsername(user.Username)
+	_, err = database.FindUserByUsername(newUser.Username)
 	if err != nil {
 		// If username is not found, hash password
 		if err.Error() == "mongo: no documents in result" {
+			user := models.User{Username: newUser.Username, Email: newUser.Email, Password: newUser.Password}
+
 			passwordhash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 5)
 
 			if err != nil {

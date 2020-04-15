@@ -9,8 +9,10 @@ type User struct {
 }
 
 type NewUserRequest struct {
-	Username string `validate:"min=3,max=20,regexp=^[a-zA-Z]*$"`
-	Password string `validate:"min=8"`
+	Username  string `validate:"min=3,max=20,regexp=^[a-zA-Z]*$"`
+	Email     string
+	Password  string `validate:"min=8"`
+	Password2 string `validate:"min=8"`
 }
 
 type Token struct {
