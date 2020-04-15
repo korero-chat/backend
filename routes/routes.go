@@ -16,10 +16,6 @@ func SetRoutes() *mux.Router {
 	// subroutes
 	s := router.PathPrefix("/api").Subrouter()
 	s.Use(controller.VerifyToken)
-	//router.HandleFunc("/logout", controller.LogoutEndpoint)
-	//
-	//
-	//
-
+	s.HandleFunc("/api/chat", controller.CreateChatEndpoint).Methods("POST")
 	return router
 }
