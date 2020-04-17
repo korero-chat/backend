@@ -68,3 +68,11 @@ func InsertUser(user models.User) error {
 	return err
 
 }
+
+func InsertChat(chat models.Chat) error {
+	c := ConnectToDB()
+	collection := c.Database(dbName).Collection("chats")
+	_, err := collection.InsertOne(context.TODO(), chat)
+
+	return err
+}

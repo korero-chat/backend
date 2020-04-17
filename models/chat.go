@@ -8,3 +8,8 @@ type Chat struct {
 	Founder User               `json:"founder"`
 	Members []User             `json:"members"`
 }
+
+type NewChatRequest struct {
+	Name    string `validate:"min=3,max=30,regexp=^[a-zA-Z]*$"`
+	Founder string `json:"founder"`
+}
