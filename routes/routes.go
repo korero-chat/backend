@@ -17,5 +17,6 @@ func SetRoutes() *mux.Router {
 	s := router.PathPrefix("/api").Subrouter()
 	s.Use(controller.VerifyToken)
 	s.HandleFunc("/api/chat", controller.CreateChatEndpoint).Methods("POST")
+	s.HandleFunc("/api/chat/{id}", controller.GetChatEndpoint).Methods("GET")
 	return router
 }

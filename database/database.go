@@ -76,3 +76,16 @@ func InsertChat(chat models.Chat) error {
 
 	return err
 }
+
+func GetChatByID(chatID string) (models.Chat, error) {
+	c := ConnectToDB()
+	collection := c.Database(dbName).Collection("chats")
+
+	var chat models.Chat
+	err := collection.FindOne(context.TODO(), bson.M{"id": chatID}).Decode(&chat)
+	if err != nil {
+		log.Fatalf("[-] Error while querying chat: %v", err)
+	}
+
+	return chat, err
+}
